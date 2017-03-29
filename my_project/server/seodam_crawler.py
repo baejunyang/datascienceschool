@@ -1,21 +1,19 @@
-# -*- coding: utf-8 -*-
-import sys
-reload(sys)
-sys.setdefaultencoding('utf-8')
-
 import time
+import pandas as pd
 from collections import OrderedDict
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
-import re
-import pandas as pd
-from comments_dao import Dao
+from pyvirtualdisplay import Display
+from selenium import webdriver
 
-#chromedriver = './chromedriver'
-driver = webdriver.Chrome('./chromedriver')
+display = Display(visible=0, size=(800,600))
+display.stary()
+
+chromedriver = './files/chromedriver'
+driver = webdriver.Chrome(chromedriver)
 driver.get('http://www.ssodam.com/')
 wait = WebDriverWait(driver,10)
 
@@ -45,17 +43,32 @@ time.sleep(1)
 alert = driver.switch_to_alert()
 alert.accept()
 
-start = 193294; end = 193300
+crawl = OrderedDict()
+crawl['title'] = []
+crawl['body'] = []
+crawl['date'] = []
+
 comments_dict = OrderedDict()
 comments_dict['text'] = []
 
-for i in range(start, end):
+start = 223249; stop=233249
+for i in range(start, stop):
     driver.get('http://www.ssodam.com/content/{}'.format(i))
     try:
-        comment_num = driver.find_element_by_xpath("//div[@class='comment-number']")
+        title = driver.find_element_by_xpath("//div[@class='board-title']")
+        body = driver.find_element_by_xpath("//div[@class='board-content mverdana']")
+        date = driver.find_element_by_xpath("//div[@class='board-date row col-lg-3 col-xs-12 desktop-hide']")
     except:
         continue
 
+    try:
+        crawl['title'].append(title.text.encode('utf-8'))
+        crawl['body'].append(body.text.encode('utf-8'))
+        crawl['date'].append(date.text.encode('utf-8'))
+    except :
+        continue
+
+    comment_num = driver.find_element_by_xpath("//div[@class='comment-number']")
     if comment_num.text == u'댓글 0개':
         continue
 
@@ -67,15 +80,15 @@ for i in range(start, end):
     for comments in div2 :
         comments_dict['text'].append(comments.text.encode('utf-8'))
         print comments.text.encode('utf-8')
-
     for comments in div4 :
         comments_dict['text'].append(comments.text.encode('utf-8'))
 
-comments_dao = Dao(comments_dict)
-commnts_dao.session_add()
-driver.quit()
-display.stop()
 
-#df = pd.DataFrame(comments_dict)
-#df.to_csv('./files/crawl_reply{}_{}.csv'.format(start,end))
-#df
+
+driver.quit()
+display.stop
+
+df_crawl = pd.DataFrame(crawl)
+df_comments = pd.DataFrame(comments_dict)
+df_crawl.to_csv('crawl{}_{}.csv'.format(start, stop))
+df_comments.to_csv('comments{}_{}.csv'.format(start,stop))

@@ -11,4 +11,3 @@ class Comment(Base):
 
     id = Column(primary_key = True, nullable = False)
     text = Column(TEXT)
-    date = Column(DateTime, nullable = False, default = '2001-01-01 01:01:01')

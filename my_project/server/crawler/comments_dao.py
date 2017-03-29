@@ -16,7 +16,7 @@ class Dao(object):
         session = Session()
 
         for i in range(len(self.n_dict['date'])) :
-            comment = comments_model.Comment(text = self.n_dict['text'][i], date = self.n_dict['date'][i])
+            comment = comments_model.Comment(text = self.n_dict['text'][i])
             session.add(comment)
 
         session.commit()
