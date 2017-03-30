@@ -55,7 +55,7 @@ crawl['date'] = []
 comments_dict = OrderedDict()
 comments_dict['text'] = []
 
-start = 223249; stop=223269
+start = 223249; stop=234249
 for i in range(start, stop):
     driver.get('http://www.ssodam.com/content/{}'.format(i))
     try:

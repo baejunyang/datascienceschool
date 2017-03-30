@@ -1,4 +1,0 @@
-CountVectorizer	MultinomialNB	stopwords_true	weight_true	n_gram
-TfidfVectorizer	logistic			
-	SVC(linear)			
-	SVC(rbf)			
