@@ -1,20 +1,20 @@
 import pandas as pd
 import functions as sf
-from functions import RecallRate, FalseSamples
+import tfidf_functions as tf
 
 X, y, weight = sf.cv_input()
 
-recall = RecallRate(X, y, tokenize=sf.tokenize_basic)
+recall = sf.RecallRate(X, y, tokenize=sf.tokenize_basic)
 recall_svc = recall.svc()
 recall_multinomial = recall.multinomial()
 recall_logistic = recall.logistic()
 
-recall2 = RecallRate(X, y, tokenize=sf.tokenize_filtered)
+recall2 = sf.RecallRate(X, y, tokenize=sf.tokenize_filtered)
 recall2_svc = recall2.svc()
 recall2_multinomial = recall2.multinomial()
 recall2_logistic = recall2.logistic()
 
-recall3 = RecallRate(X, y, tokenize=sf.tokenize_noun)
+recall3 = sf.RecallRate(X, y, tokenize=sf.tokenize_noun)
 recall3_svc = recall3.svc()
 recall3_multinomial = recall3.multinomial()
 recall3_logistic = recall3.logistic()

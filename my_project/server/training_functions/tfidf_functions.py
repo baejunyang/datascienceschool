@@ -73,9 +73,9 @@ class RecallRate(object):
         recall_rate = cross_val_score(model, self.X, self.y, scoring='recall', cv=cv, fit_params={'clf__sample_weight' : self.weight})
         return recall_rate
 
-    def logistic(self):
+    def logistic(self, ngram=(1,1)):
         model = Pipeline([
-                ('vect', TfidfVectorizer(tokenizer=self.tokenize, stop_words=self.stop_words)),
+                ('vect', TfidfVectorizer(tokenizer=self.tokenize, stop_words=self.stop_words, ngram_range=ngram)),
                 ('clf', LogisticRegression())])
         cv = ShuffleSplit(self.len_row, random_state=self.random_state)
         recall_rate = cross_val_score(model, self.X, self.y, scoring='recall', cv=cv, fit_params={'clf__sample_weight' : self.weight})
@@ -137,10 +137,10 @@ class FalseSamples(object):
         recall_rate = float(report[1,1]) / (report[1,0] + report[1,1])
         return recall_rate, false_negative, false_positive
 
-    def logistic(self):
+    def logistic(self, ngram=(1,1)):
         X_train, X_test, y_train, y_test, w_train = simple_split()
         model = Pipeline([
-                ('vect', TfidfVectorizer(tokenizer=self.tokenize, stop_words=self.stop_words)),
+                ('vect', TfidfVectorizer(tokenizer=self.tokenize, stop_words=self.stop_words, ngram_range=ngram)),
                 ('clf', LogisticRegression())])
 
         if self.weight == False :
