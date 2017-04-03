@@ -10,7 +10,7 @@ from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import classification_report, confusion_matrix
 
-def cv_input(frozen_dir='../../private/files/seodam_together_notags0326.csv', unfrozen_dir='../../private/files/unfrozen2_3500.csv', row_limit=3211):
+def cv_input(frozen_dir='../../private/files/seodam_together_notags0326.csv', unfrozen_dir='../../private/files/unfrozen_mixed0402.csv', row_limit=3211):
     df_frozen = pd.read_csv(frozen_dir).drop(['Unnamed: 0'], axis=1)
     df_unfrozen = pd.read_csv(unfrozen_dir).drop(['Unnamed: 0'], axis=1)[:row_limit]
 
@@ -46,6 +46,12 @@ def tokenize_filtered(doc):
         if t[1] != 'Josa' and t[1] != 'Punctuation' and t[1] != 'Determiner' and t[1] != 'URL' :
             token_list.append('/'.join(t))
     return token_list
+
+def make_corpus(tokenizer=tokenize_basic, corpa='../../corpus.txt'):
+    with open(corpa, 'r') as corp:
+        corpus0 = corp.read().decode('utf-8')
+    corpus = tokenizer(corpus0)
+    return corpus
 
 class RecallRate(object):
     def __init__(self, X, y, tokenize=tokenize_filtered, weight=None, stop_words=None, len_row=6422, random_state=0):
@@ -157,3 +163,118 @@ class FalseSamples(object):
         report = confusion_matrix(y_test, result)
         recall_rate = float(report[1,1]) / (report[1,0] + report[1,1])
         return recall_rate, false_negative, false_positive
+
+class ConfusionMatrix(object):
+    def __init__(self, X, y, weight=None, tokenize=tokenize_filtered, stop_words=None, len_row=6422, random_state=0):
+        self.X = X
+        self.y = y
+        self.weight = weight
+        self.tokenize = tokenize
+        self.stop_words = stop_words
+        self.len_row = len_row
+        self.random_state = random_state
+
+    def svc(self, kernel='linear'):
+        model = Pipeline([
+        ('vect', CountVectorizer(tokenizer=self.tokenize, stop_words=self.stop_words)),
+        ('clf', SVC(kernel=kernel))])
+        report_list=[]
+        recall_list=[]
+        precision_list=[]
+        f1_list=[]
+
+        cv = ShuffleSplit(self.len_row, random_state=self.random_state)
+        for k, (train_index, test_index) in enumerate(cv):
+            X_train = self.X[train_index]
+            y_train = self.y[train_index]
+            X_test = self.X[test_index]
+            y_test = self.y[test_index]
+
+            if self.weight != None:
+                weight0 = self.weight[train_index]
+            else :
+                weight0 = None
+
+            model.fit(X_train, y_train, **{'clf__sample_weight' : weight0})
+            result = model.predict(X_test)
+
+            report = confusion_matrix(y_test, result)
+            recall = float(report[1][0]) / (report[1][0] + report[1][1])
+            precision = float(report[1][1]) / (report[1][1] + report[0][1])
+            f1 = 2*recall*precision / float(recall + precision)
+
+            report_list.append(report)
+            recall_list.append(recall)
+            precision_list.append(precision)
+            f1_list.append(f1)
+        return report_list, recall_list, precision_list, f1_list
+
+    def multinomial(self, vocabulary=None, ngram=(1,1)):
+        model = Pipeline([
+        ('vect', CountVectorizer(tokenizer=self.tokenize, vocabulary=vocabulary, stop_words=self.stop_words, ngram_range=ngram)),
+        ('clf', MultinomialNB())])
+        report_list=[]
+        recall_list=[]
+        precision_list=[]
+        f1_list=[]
+
+        cv = ShuffleSplit(self.len_row, random_state=self.random_state)
+        for k, (train_index, test_index) in enumerate(cv):
+            X_train = self.X[train_index]
+            y_train = self.y[train_index]
+            X_test = self.X[test_index]
+            y_test = self.y[test_index]
+
+            if self.weight != None:
+                weight0 = self.weight[train_index]
+            else :
+                weight0 = None
+
+            model.fit(X_train, y_train, **{'clf__sample_weight' : weight0})
+            result = model.predict(X_test)
+
+            report = confusion_matrix(y_test, result)
+            recall = float(report[1][0]) / (report[1][0] + report[1][1])
+            precision = float(report[1][1]) / (report[1][1] + report[0][1])
+            f1 = 2*recall*precision / float(recall + precision)
+
+            report_list.append(report)
+            recall_list.append(recall)
+            precision_list.append(precision)
+            f1_list.append(f1)
+        return report_list, recall_list, precision_list, f1_list
+
+    def logistic(self, vocabulary=None, ngram=(1,1)):
+        model = Pipeline([
+        ('vect', CountVectorizer(tokenizer=self.tokenize, vocabulary=vocabulary, stop_words=self.stop_words, ngram_range=ngram)),
+        ('clf', SVC(kernel=kernel))])
+        report_list=[]
+        recall_list=[]
+        precision_list=[]
+        f1_list=[]
+
+        cv = ShuffleSplit(self.len_row, random_state=self.random_state)
+        for k, (train_index, test_index) in enumerate(cv):
+            X_train = self.X[train_index]
+            y_train = self.y[train_index]
+            X_test = self.X[test_index]
+            y_test = self.y[test_index]
+
+            if self.weight != None:
+                weight0 = self.weight[train_index]
+            else :
+                weight0 = None
+
+            model.fit(X_train, y_train, **{'clf__sample_weight' : weight0})
+            result = model.predict(X_test)
+
+            report = confusion_matrix(y_test, result)
+            recall = float(report[1][0]) / (report[1][0] + report[1][1])
+            precision = float(report[1][1]) / (report[1][1] + report[0][1])
+            f1 = 2*recall*precision / float(recall + precision)
+
+            report_list.append(report)
+            recall_list.append(recall)
+            precision_list.append(precision)
+            f1_list.append(f1)
+        return report_list, recall_list, precision_list, f1_list
