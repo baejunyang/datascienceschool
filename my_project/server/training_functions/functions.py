@@ -53,6 +53,21 @@ def make_corpus(tokenizer=tokenize_basic, corpa='../../corpus.txt'):
     corpus = tokenizer(corpus0)
     return corpus
 
+def gridsearch(X, y, weight):
+    model = Pipeline([
+        ('vect', CountVectorizer(tokenizer=tokenize_filtered)),
+        ('clf', SVC())])
+    param_range = np.logspace(-4,3,8)
+    param_grid = [{'clf__C': param_range, 'clf__gamma':param_range, 'clf__kernel':['rbf']}]
+
+    cv = ShuffleSplit(6422)
+    gs = GridSearchCV(estimator=model, param_grid=param_grid, fit_params={'clf__sample_weigth':weight}, cv=cv, scoring='recall', n_jobs=2)
+    gs.fit(X,y)
+
+    print 'best score :', gs.best_score_
+    print 'best parpams :', gs.best_params_
+    print gs.grid_scores_
+
 class RecallRate(object):
     def __init__(self, X, y, tokenize=tokenize_filtered, weight=None, stop_words=None, len_row=6422, random_state=0):
         self.X = X

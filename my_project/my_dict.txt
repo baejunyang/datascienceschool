@@ -1,0 +1,10 @@
+term	tag
+ㅭ	ep
+ㅭ가	ep
+ㅭ다	ep
+ㅭ대로	ep
+ㅭ뎬	ep
+ㅭ디나	ep
+ㅭ디니	ep
+ㅭ디니라	ep
+ㅭ디라	ep
