@@ -174,10 +174,10 @@ class ConfusionMatrix(object):
         self.len_row = len_row
         self.random_state = random_state
 
-    def svc(self, kernel='linear'):
+    def svc(self, kernel='rbf', gamma=1):
         model = Pipeline([
         ('vect', CountVectorizer(tokenizer=self.tokenize, stop_words=self.stop_words)),
-        ('clf', SVC(kernel=kernel))])
+        ('clf', SVC(kernel=kernel, gamma=gamma))])
         report_list=[]
         recall_list=[]
         precision_list=[]
@@ -197,11 +197,22 @@ class ConfusionMatrix(object):
 
             model.fit(X_train, y_train, **{'clf__sample_weight' : weight0})
             result = model.predict(X_test)
-
             report = confusion_matrix(y_test, result)
-            recall = float(report[1][0]) / (report[1][0] + report[1][1])
-            precision = float(report[1][1]) / (report[1][1] + report[0][1])
-            f1 = 2*recall*precision / float(recall + precision)
+
+            if (report[1][0] + report[1][1]) == 0 :
+                recall = 'infinite'
+            else:
+                recall = float(report[1][0]) / (report[1][0] + report[1][1])
+
+            if (report[0][1] + report[1][1]) == 0:
+                precision = 'infinite'
+            else :
+                precision = float(report[1][1]) / (report[1][1] + report[0][1])
+
+            if recall != 'infinite' and precision != 'infinite':
+                f1 = 2*recall*precision / float(recall + precision)
+            else:
+                f1 = 0
 
             report_list.append(report)
             recall_list.append(recall)
