@@ -6,21 +6,21 @@ from bs4 import BeautifulSoup
 import re
 
 class GetText(object):
-    def __init__(self, ulist, start, end):                  #나중에 ulist 부분에는 앞에서 정의한 df를 넣어줍니다.
+    def __init__(self, ulist, start, end):
         self.ulist = ulist
         self.start = start
         self.end = end
 
-    def wine_info(self):                        #wine_dict는 id, name, production 등등을 key로 갖는 사전.
-        wine_dict = OrderedDict()               # 각각의 key는 리스트를 value로 갖습니다.
+    def wine_info(self):
+        wine_dict = OrderedDict()
         wine_dict['id'] = []
         wine_dict['varieties'] = []
         wine_dict['tastingnote0'] = []
         wine_dict['tastingnote1'] = []
         wine_dict['price'] = []
 
-        for i in range(self.start, self.end):                  # 크롤링할 범위 설정(wine_code가 아니라 인덱스 번호)
-            url = self.ulist.iloc[i]['URL']          # self.ulist가 dataframe 형식이므로 iloc 이용해서 url을 가져옵니다.
+        for i in range(self.start, self.end):
+            url = self.ulist.iloc[i]['URL']
 
             try:
                 res = requests.get(url)
@@ -33,7 +33,7 @@ class GetText(object):
                 wine_dict['price'].append('None')
                 continue
 
-            idnum = re.search(r'\d{5}', url).group()    #wine_code부터 크롤링 시작
+            idnum = re.search(r'\d{5}', url).group()
             wine_dict['id'].append(idnum)
 
             try:
@@ -77,11 +77,11 @@ class GetText(object):
                 wine_dict['tastingnote0'].append('None')
                 wine_dict['tastingnote1'].append('None')
 
-        wine_df = pd.DataFrame(wine_dict)           # 사전 형식의 wine_dict를 dataframe 형식의 wine_df로 바꿔줍니다.
+        wine_df = pd.DataFrame(wine_dict)
 
         return wine_df
 
-df = pd.read_csv('pd_url_list_short.csv')       #df 변수로 csv 파일을 읽어옵니다.
+df = pd.read_csv('pd_url_list_short.csv')
 
 starts = 1000
 ends = 2000
