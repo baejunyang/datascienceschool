@@ -17,6 +17,3 @@
 - categorical 변수는 labeling 및 one-hot-encoding을 진행하고, numerical 데이터중 skew가 높은 데이터는 로그변환을 취한다.
 - 선형회귀 및 랜덤포레스트, 서포트벡터 등 다양한 모형을 이용해 결과를 예측해본다
 - 위의 모형들을 stacking 하고, stacking한 데이터를 ridge 방법으로 회귀분석 하여 결과를 도출한다.
-
-## 4. studying : 회귀분석, 분류, 딥러닝 등 공부하고 있는 주제에 대해 업데이트 중
-
